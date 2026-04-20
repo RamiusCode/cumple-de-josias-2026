@@ -93,14 +93,27 @@
 
             function ajustarSobre() {
                 if (!fondoImg || !sobreContainer) return;
-                if (!fondoImg.naturalWidth) return;
 
-                const rect = fondoImg.getBoundingClientRect();
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
 
-                // Ajusta este valor para subir (menos) o bajar (más) el sobre
+                const imgNatW = fondoImg.naturalWidth || 390;
+                const imgNatH = fondoImg.naturalHeight || 844;
+                const imgRatio = imgNatW / imgNatH;
+                const screenRatio = vw / vh;
+
+                let renderedH: number, offsetTop: number;
+
+                if (screenRatio < imgRatio) {
+                    renderedH = vw / imgRatio;
+                    offsetTop = (vh - renderedH) / 2;
+                } else {
+                    renderedH = vh;
+                    offsetTop = 0;
+                }
+
                 const sobreTopPct = 0.52;
-
-                const sobreCenterY = rect.top + rect.height * sobreTopPct;
+                const sobreCenterY = offsetTop + renderedH * sobreTopPct;
 
                 sobreContainer.style.top = `${sobreCenterY}px`;
                 sobreContainer.style.transform = "translate(-50%, -50%)";
@@ -115,10 +128,16 @@
             fondoImg?.addEventListener("load", ajustarSobre);
             window.addEventListener("resize", ajustarSobre);
 
-            // Múltiples intentos para cubrir caché y cambios de viewport móvil
+            // Recalcular cuando el usuario vuelve a la pestaña (fix recarga móvil)
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") {
+                    setTimeout(intentarAjuste, 50);
+                }
+            });
+
             requestAnimationFrame(intentarAjuste);
             setTimeout(intentarAjuste, 100);
-            setTimeout(intentarAjuste, 400);
+            setTimeout(intentarAjuste, 500);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
