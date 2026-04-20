@@ -1,0 +1,181 @@
+---
+// src/components/Invitacion.astro
+---
+
+<section
+    id="invitacion-section"
+    class="relative overflow-hidden bg-white"
+    style="max-width: 430px; margin: 0 auto; width: 100%;"
+>
+    <!-- FONDO: imagen de la invitación completa -->
+    <img
+        src="/imagenes/fondo6.png"
+        id="fondo2-img"
+        class="absolute inset-0 w-full h-full object-contain object-top pointer-events-none z-0"
+    />
+
+    <!-- Botón Ubicación -->
+    <a
+        id="btn-ubicacion"
+        href="https://maps.app.goo.gl/pdRvmonGedVtuddn9"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="position: absolute; left: 52%; transform: translateX(-50%); z-index: 10;"
+    >
+        <img
+            id="img-ubicacion"
+            src="/imagenes/ubicacion.png"
+            alt="Ver ubicación"
+            class="drop-shadow-lg active:scale-95 hover:scale-105 transition-transform duration-200"
+        />
+    </a>
+
+    <!-- Botón Confirmar -->
+    <a
+        id="btn-confirmar"
+        href="https://wa.link/8taj8s"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="position: absolute; left: 52%; transform: translateX(-50%); z-index: 10;"
+    >
+        <img
+            id="img-confirmar"
+            src="/imagenes/confirmar.png"
+            alt="Confirmar con el padre"
+            class="drop-shadow-lg active:scale-95 hover:scale-105 transition-transform duration-200"
+        />
+    </a>
+
+    <!-- BOTÓN FLOTANTE DE MÚSICA -->
+    <div class="fixed bottom-6 right-6 z-[9999]" id="boton-musica-flotante">
+        <button
+            id="toggle-musica"
+            class="relative w-12 h-12 bg-white/80 hover:bg-white/95 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 border border-white/40"
+            aria-label="Controlar música"
+        >
+            <!-- Onda animada (visible cuando suena) -->
+            <div
+                id="onda-sonido"
+                class="absolute -inset-2 rounded-full border-2 border-pink-300/60 animate-ping"
+            >
+            </div>
+
+            <!-- Ícono PAUSE — visible por defecto -->
+            <svg
+                id="icono-pause"
+                class="w-5 h-5 text-pink-500 relative z-10"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+            >
+                <path
+                    d="M5.5 3.5A1.5 1.5 0 017 2h1a1.5 1.5 0 011.5 1.5v13A1.5 1.5 0 018 18H7a1.5 1.5 0 01-1.5-1.5v-13zm7 0A1.5 1.5 0 0114 2h1a1.5 1.5 0 011.5 1.5v13a1.5 1.5 0 01-1.5 1.5h-1a1.5 1.5 0 01-1.5-1.5v-13z"
+                ></path>
+            </svg>
+
+            <!-- Ícono PLAY — oculto por defecto -->
+            <svg
+                id="icono-play"
+                class="w-5 h-5 text-pink-500 relative z-10 hidden"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+            >
+                <path
+                    d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"
+                ></path>
+            </svg>
+        </button>
+    </div>
+</section>
+
+<script>
+    if (typeof window !== "undefined") {
+        document.addEventListener("DOMContentLoaded", () => {
+            // ── Altura proporcional del fondo ───────────────────────
+            const section = document.getElementById(
+                "invitacion-section",
+            ) as HTMLElement;
+            const fondo = document.getElementById(
+                "fondo2-img",
+            ) as HTMLImageElement;
+
+            const REF_W = 390; // ancho de referencia del celular donde se diseñó
+            const REF_BOTTOM_UBICACION = 270;
+            const REF_BOTTOM_CONFIRMAR = 190;
+            const REF_BTN_W = 149; // ancho del botón en el celular de referencia (38vw de 390px)
+
+            const btnUbicacion = document.getElementById(
+                "btn-ubicacion",
+            ) as HTMLElement;
+            const btnConfirmar = document.getElementById(
+                "btn-confirmar",
+            ) as HTMLElement;
+            const imgUbicacion = document.getElementById(
+                "img-ubicacion",
+            ) as HTMLImageElement;
+            const imgConfirmar = document.getElementById(
+                "img-confirmar",
+            ) as HTMLImageElement;
+
+            const ajustarAltura = () => {
+                const w = section.offsetWidth;
+                const ratio = fondo.naturalHeight / fondo.naturalWidth;
+                section.style.height = `${w * ratio}px`;
+
+                const scale = w / REF_W;
+                btnUbicacion.style.bottom = `${REF_BOTTOM_UBICACION * scale}px`;
+                btnConfirmar.style.bottom = `${REF_BOTTOM_CONFIRMAR * scale}px`;
+                imgUbicacion.style.width = `${REF_BTN_W * scale}px`;
+                imgConfirmar.style.width = `${REF_BTN_W * scale}px`;
+            };
+            fondo.addEventListener("load", ajustarAltura);
+            if (fondo.complete) ajustarAltura();
+            window.addEventListener("resize", ajustarAltura);
+
+            // ── Botón de música ─────────────────────────────────────
+            const btnToggle = document.getElementById("toggle-musica");
+            const iconoPause = document.getElementById("icono-pause");
+            const iconoPlay = document.getElementById("icono-play");
+            const ondaSonido = document.getElementById("onda-sonido");
+
+            const sincronizarUI = () => {
+                const sonando = (window as any).estaReproduciendoGlobal;
+                if (sonando) {
+                    iconoPause?.classList.remove("hidden");
+                    iconoPlay?.classList.add("hidden");
+                    ondaSonido?.classList.remove("hidden");
+                } else {
+                    iconoPause?.classList.add("hidden");
+                    iconoPlay?.classList.remove("hidden");
+                    ondaSonido?.classList.add("hidden");
+                }
+            };
+
+            sincronizarUI();
+            window.addEventListener("musica-iniciada", sincronizarUI, {
+                once: true,
+            });
+
+            btnToggle?.addEventListener("click", () => {
+                const audio = (window as any).audioGlobal as
+                    | HTMLAudioElement
+                    | undefined;
+                const sonando = (window as any)
+                    .estaReproduciendoGlobal as boolean;
+
+                if (!audio) return;
+
+                if (sonando) {
+                    audio.pause();
+                    (window as any).estaReproduciendoGlobal = false;
+                } else {
+                    audio
+                        .play()
+                        .catch((e: any) => console.log("Audio bloqueado:", e));
+                    (window as any).estaReproduciendoGlobal = true;
+                }
+
+                sincronizarUI();
+            });
+        });
+    }
+</script>
