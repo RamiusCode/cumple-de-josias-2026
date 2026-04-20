@@ -36,6 +36,7 @@
 >
     <!-- Fondo completo -->
     <img
+        id="fondo-portada"
         src="/imagenes/fondoinvitacion.png"
         style="
             position: absolute;
@@ -54,7 +55,7 @@
         id="sobre-container"
         style="
             position: absolute;
-            top: 54%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
@@ -99,6 +100,33 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("portada-activa");
 
+            // Posicionar sobre relativo a la imagen renderizada
+            const fondoPortada = document.getElementById("fondo-portada") as HTMLImageElement;
+            const sobreEl = document.getElementById("sobre-container") as HTMLElement;
+            const seccion = document.getElementById("portada-section") as HTMLElement;
+
+            const posicionarSobre = () => {
+                const secW = seccion.offsetWidth;
+                const secH = seccion.offsetHeight;
+                const imgRatio = fondoPortada.naturalHeight / fondoPortada.naturalWidth;
+                const secRatio = secH / secW;
+                let imgH: number, imgOffsetTop: number;
+                if (imgRatio > secRatio) {
+                    imgH = secH;
+                    imgOffsetTop = 0;
+                } else {
+                    imgH = secW * imgRatio;
+                    imgOffsetTop = (secH - imgH) / 2;
+                }
+                sobreEl.style.top = `${imgOffsetTop + imgH * 0.50}px`;
+            };
+
+            if (fondoPortada.complete && fondoPortada.naturalWidth > 0) {
+                posicionarSobre();
+            } else {
+                fondoPortada.addEventListener("load", posicionarSobre);
+            }
+            window.addEventListener("resize", posicionarSobre);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
