@@ -18,7 +18,7 @@
         margin: 0 auto;
         width: 100%;
         max-width: 430px;
-        height: 100dvh;
+        height: 100vh;
         z-index: 10000;
         overflow: hidden;
     "
@@ -87,6 +87,12 @@
     if (typeof window !== "undefined") {
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("portada-activa");
+
+            // Forzar altura real de la pantalla (evita bugs con dvh en móviles)
+            const portadaEl = document.getElementById("portada-section") as HTMLElement;
+            const setHeight = () => { portadaEl.style.height = `${window.innerHeight}px`; };
+            setHeight();
+            window.addEventListener("resize", setHeight);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
