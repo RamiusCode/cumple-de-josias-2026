@@ -126,12 +126,19 @@
             const fondoImg = document.getElementById(
                 "fondo-img",
             ) as HTMLImageElement;
-            if (fondoImg?.complete && fondoImg.naturalWidth > 0) {
-                ajustarSobre();
-            } else {
-                fondoImg?.addEventListener("load", ajustarSobre);
-            }
+
+            // Ejecutar siempre al inicio, con o sin caché
+            ajustarSobre();
+
+            // También cuando cargue (primera vez sin caché)
+            fondoImg?.addEventListener("load", ajustarSobre);
+
+            // También en resize
             window.addEventListener("resize", ajustarSobre);
+
+            // Seguro extra: volver a calcular tras render completo
+            requestAnimationFrame(() => ajustarSobre());
+            setTimeout(() => ajustarSobre(), 200);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
