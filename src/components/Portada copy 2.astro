@@ -14,7 +14,7 @@
         position: fixed;
         inset: 0;
         width: 100%;
-        height: 100%;
+        height: 100dvh;
         z-index: 10000;
         overflow: hidden;
     "
@@ -22,7 +22,6 @@
     <!-- Fondo completo -->
     <img
         src="/imagenes/fondoinvitacion.png"
-        id="fondo-img"
         style="
             position: absolute;
             inset: 0;
@@ -35,17 +34,17 @@
         "
     />
 
-    <!-- SOBRE.PNG — posicionado con % sobre la imagen renderizada -->
+    <!-- SOBRE.PNG — centro clickeable -->
     <div
         id="sobre-container"
         style="
             position: absolute;
-            top: 50%;
+            top: 54%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
             cursor: pointer;
-            width: min(65vw, 280px);
+            width: 280px;
         "
     >
         <img
@@ -53,8 +52,9 @@
             id="sobre-img"
             style="
                 width: 100%;
+                max-width: 410px;
+                min-width: 160px;
                 height: auto;
-                display: block;
                 filter: drop-shadow(0 0 18px rgba(255,255,255,0.9)) drop-shadow(0 0 35px rgba(255,255,255,0.6)) drop-shadow(0 8px 20px rgba(0,0,0,0.25));
             "
         />
@@ -64,7 +64,7 @@
 <style>
     body.portada-activa {
         overflow: hidden !important;
-        height: 100% !important;
+        height: 100vh !important;
     }
 
     #capa-blanca {
@@ -84,58 +84,10 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("portada-activa");
 
-            function ajustarSobre() {
-                const fondoImg = document.getElementById(
-                    "fondo-img",
-                ) as HTMLImageElement;
-                const sobreContainer = document.getElementById(
-                    "sobre-container",
-                ) as HTMLElement;
-                if (!fondoImg || !sobreContainer) return;
-
-                const vw = window.innerWidth;
-                const vh = window.innerHeight;
-
-                const imgNatW = fondoImg.naturalWidth || 390;
-                const imgNatH = fondoImg.naturalHeight || 844;
-                const imgRatio = imgNatW / imgNatH;
-                const screenRatio = vw / vh;
-
-                let renderedH: number, offsetTop: number;
-
-                if (screenRatio < imgRatio) {
-                    // Barras arriba y abajo
-                    renderedH = vw / imgRatio;
-                    offsetTop = (vh - renderedH) / 2;
-                } else {
-                    // Barras a los lados
-                    renderedH = vh;
-                    offsetTop = 0;
-                }
-
-                // El sobre está aproximadamente al 42% de la imagen de fondo
-                // Ajusta este valor (0.35 - 0.60) hasta que quede donde necesitas
-                const sobreTopPct = 0.52;
-
-                const sobreCenterY = offsetTop + renderedH * sobreTopPct;
-
-                sobreContainer.style.top = `${sobreCenterY}px`;
-                sobreContainer.style.transform = "translate(-50%, -50%)";
-            }
-
-            const fondoImg = document.getElementById(
-                "fondo-img",
-            ) as HTMLImageElement;
-            if (fondoImg?.complete && fondoImg.naturalWidth > 0) {
-                ajustarSobre();
-            } else {
-                fondoImg?.addEventListener("load", ajustarSobre);
-            }
-            window.addEventListener("resize", ajustarSobre);
-
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
 
+            // Entrada del sobre
             gsap.to("#sobre-container", {
                 opacity: 1,
                 scale: 1,
@@ -144,6 +96,7 @@
                 delay: 0.3,
             });
 
+            // Pulso suave grande-pequeño
             gsap.to("#sobre-container", {
                 scale: 1.05,
                 duration: 2.0,
@@ -153,6 +106,7 @@
                 delay: 1.2,
             });
 
+            // Hover (desktop)
             const sobreContainer = document.getElementById("sobre-container");
 
             sobreContainer?.addEventListener("mouseenter", () => {
@@ -171,6 +125,7 @@
                 });
             });
 
+            // Click: música + salida
             const portadaSection = document.getElementById("portada-section");
             const capaBlanca = document.getElementById("capa-blanca");
 
@@ -201,9 +156,7 @@
                             duration: 0.5,
                             ease: "power2.in",
                             onStart: () => {
-                                document.body.classList.remove(
-                                    "portada-activa",
-                                );
+                                document.body.classList.remove("portada-activa");
                                 document.body.style.overflow = "auto";
                             },
                             onComplete: () => {
