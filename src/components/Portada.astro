@@ -84,61 +84,41 @@
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("portada-activa");
 
+            const fondoImg = document.getElementById(
+                "fondo-img",
+            ) as HTMLImageElement;
+            const sobreContainer = document.getElementById(
+                "sobre-container",
+            ) as HTMLElement;
+
             function ajustarSobre() {
-                const fondoImg = document.getElementById(
-                    "fondo-img",
-                ) as HTMLImageElement;
-                const sobreContainer = document.getElementById(
-                    "sobre-container",
-                ) as HTMLElement;
                 if (!fondoImg || !sobreContainer) return;
+                if (!fondoImg.naturalWidth) return;
 
-                const vw = window.innerWidth;
-                const vh = window.innerHeight;
+                const rect = fondoImg.getBoundingClientRect();
 
-                const imgNatW = fondoImg.naturalWidth || 390;
-                const imgNatH = fondoImg.naturalHeight || 844;
-                const imgRatio = imgNatW / imgNatH;
-                const screenRatio = vw / vh;
-
-                let renderedH: number, offsetTop: number;
-
-                if (screenRatio < imgRatio) {
-                    // Barras arriba y abajo
-                    renderedH = vw / imgRatio;
-                    offsetTop = (vh - renderedH) / 2;
-                } else {
-                    // Barras a los lados
-                    renderedH = vh;
-                    offsetTop = 0;
-                }
-
-                // El sobre está aproximadamente al 42% de la imagen de fondo
-                // Ajusta este valor (0.35 - 0.60) hasta que quede donde necesitas
+                // Ajusta este valor para subir (menos) o bajar (más) el sobre
                 const sobreTopPct = 0.52;
 
-                const sobreCenterY = offsetTop + renderedH * sobreTopPct;
+                const sobreCenterY = rect.top + rect.height * sobreTopPct;
 
                 sobreContainer.style.top = `${sobreCenterY}px`;
                 sobreContainer.style.transform = "translate(-50%, -50%)";
             }
 
-            const fondoImg = document.getElementById(
-                "fondo-img",
-            ) as HTMLImageElement;
+            function intentarAjuste() {
+                if (fondoImg?.naturalWidth > 0) {
+                    ajustarSobre();
+                }
+            }
 
-            // Ejecutar siempre al inicio, con o sin caché
-            ajustarSobre();
-
-            // También cuando cargue (primera vez sin caché)
             fondoImg?.addEventListener("load", ajustarSobre);
-
-            // También en resize
             window.addEventListener("resize", ajustarSobre);
 
-            // Seguro extra: volver a calcular tras render completo
-            requestAnimationFrame(() => ajustarSobre());
-            setTimeout(() => ajustarSobre(), 200);
+            // Múltiples intentos para cubrir caché y cambios de viewport móvil
+            requestAnimationFrame(intentarAjuste);
+            setTimeout(intentarAjuste, 100);
+            setTimeout(intentarAjuste, 400);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
@@ -159,8 +139,6 @@
                 ease: "sine.inOut",
                 delay: 1.2,
             });
-
-            const sobreContainer = document.getElementById("sobre-container");
 
             sobreContainer?.addEventListener("mouseenter", () => {
                 gsap.to("#sobre-img", {
