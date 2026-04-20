@@ -2,17 +2,6 @@
 // src/components/Portada.astro
 ---
 
-<script is:inline>
-    (function() {
-        var vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', vh + 'px');
-        window.addEventListener('resize', function() {
-            var vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', vh + 'px');
-        });
-    })();
-</script>
-
 <div
     id="capa-blanca"
     style="position: fixed; inset: 0; background: #ffffff; z-index: 9999; opacity: 1; pointer-events: none;"
@@ -23,20 +12,15 @@
     id="portada-section"
     style="
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
+        inset: 0;
         width: 100%;
-        max-width: 430px;
-        height: calc(var(--vh, 1vh) * 100);
+        height: 100dvh;
         z-index: 10000;
         overflow: hidden;
     "
 >
     <!-- Fondo completo -->
     <img
-        id="fondo-portada"
         src="/imagenes/fondoinvitacion.png"
         style="
             position: absolute;
@@ -55,7 +39,7 @@
         id="sobre-container"
         style="
             position: absolute;
-            top: 50%;
+            top: 54%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
@@ -99,34 +83,6 @@
     if (typeof window !== "undefined") {
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("portada-activa");
-
-            // Posicionar sobre relativo a la imagen renderizada
-            const fondoPortada = document.getElementById("fondo-portada") as HTMLImageElement;
-            const sobreEl = document.getElementById("sobre-container") as HTMLElement;
-            const seccion = document.getElementById("portada-section") as HTMLElement;
-
-            const posicionarSobre = () => {
-                const secW = seccion.offsetWidth;
-                const secH = seccion.offsetHeight;
-                const imgRatio = fondoPortada.naturalHeight / fondoPortada.naturalWidth;
-                const secRatio = secH / secW;
-                let imgH: number, imgOffsetTop: number;
-                if (imgRatio > secRatio) {
-                    imgH = secH;
-                    imgOffsetTop = 0;
-                } else {
-                    imgH = secW * imgRatio;
-                    imgOffsetTop = (secH - imgH) / 2;
-                }
-                sobreEl.style.top = `${imgOffsetTop + imgH * 0.42}px`;
-            };
-
-            if (fondoPortada.complete && fondoPortada.naturalWidth > 0) {
-                posicionarSobre();
-            } else {
-                fondoPortada.addEventListener("load", posicionarSobre);
-            }
-            window.addEventListener("resize", posicionarSobre);
 
             // Estado inicial
             gsap.set("#sobre-container", { opacity: 0, scale: 0.5 });
@@ -200,9 +156,7 @@
                             duration: 0.5,
                             ease: "power2.in",
                             onStart: () => {
-                                document.body.classList.remove(
-                                    "portada-activa",
-                                );
+                                document.body.classList.remove("portada-activa");
                                 document.body.style.overflow = "auto";
                             },
                             onComplete: () => {
