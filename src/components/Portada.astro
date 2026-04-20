@@ -80,6 +80,7 @@
     html,
     body {
         background-color: #ffffff !important;
+        overflow: hidden;
     }
 </style>
 
@@ -152,6 +153,7 @@
                             onStart: () => {
                                 document.body.classList.remove("portada-activa");
                                 document.body.style.overflow = "auto";
+                                document.documentElement.style.overflow = "auto";
                             },
                             onComplete: () => {
                                 portadaSection?.remove();
